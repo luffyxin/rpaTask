@@ -10,16 +10,22 @@ stages:
 
 job_build:
   stage: build
+  tags:
+    - maven
   script:
     - mvn clean install
 
 job_test:
   stage: test
+  tags:
+    - maven
   script:
     - mvn test
 
 job_deploy:
   stage: deploy
+  tags:
+    - maven
   script:
     # 通过Dockerfile生成镜像
     - mvn package docker:build
