@@ -5,7 +5,7 @@ after_script:
 # 定义几个流程（job），这里是定义了三个自动化流程
 stages:
   - build
-  - test
+  - package
   - deploy
 cache:
   paths:
@@ -17,11 +17,24 @@ variables:
 
 job_build:
   stage: build
+  tags:
+    - maven
   script:
-    - mvn clean package
+    - echo "=============== 开始编译构建任务 ==============="
+    - mvn compile
+
+package:
+  stage: package
+  tags:
+    - maven
+  script:
+    - echo "=============== 开始打包任务  ==============="
+    - mvn package -Dmaven.test.skip=true
 
 job_deploy:
   stage: deploy
+  tags:
+    - maven
   script:
     # 通过Dockerfile生成镜像
     - docker built -t xin-demo .
