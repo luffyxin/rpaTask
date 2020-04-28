@@ -4,8 +4,8 @@ after_script:
 
 # 定义几个流程（job），这里是定义了三个自动化流程
 stages:
-  - build
-  - test
+#  - build
+#  - test
   - deploy
 
 job_build:
