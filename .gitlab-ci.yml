@@ -6,21 +6,11 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=/usr/local/maven/repo"
 # 本次构建的阶段：build package
 stages:
-- build
-- package
-# 构建 Job
-build:
-  stage: build
+- dock
+
+dock:
+  stage: dock
   tags:
   - maven
   script:
-  - echo "=============== 开始编译构建任务 ==============="
-  - mvn compile
-# 打包
-package:
-  stage: package
-  tags:
-  - maven
-  script:
-  - echo "=============== 开始打包任务  ==============="
-  - mvn package -Dmaven.test.skip=true
+  - docker build -t xin-demo  .
