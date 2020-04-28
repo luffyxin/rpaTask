@@ -2,6 +2,13 @@
 after_script:
   - docker rmi $( docker images -q -f dangling=true)
 
+cache:
+  paths:
+    - .m2/
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
+
 # 定义几个流程（job），这里是定义了三个自动化流程
 stages:
   - build
