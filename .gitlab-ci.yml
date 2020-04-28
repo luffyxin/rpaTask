@@ -8,20 +8,6 @@ stages:
 #  - test
   - deploy
 
-job_build:
-  stage: build
-  tags:
-    - maven
-  script:
-    - mvn clean install
-
-job_test:
-  stage: test
-  tags:
-    - maven
-  script:
-    - mvn test
-
 job_deploy:
   stage: deploy
   tags:
