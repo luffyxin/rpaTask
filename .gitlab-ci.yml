@@ -15,14 +15,6 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2"
 
 
-job_build:
-  stage: build
-  tags:
-    - maven
-  script:
-    - echo "=============== 开始编译构建任务 ==============="
-    - mvn compile
-
 package:
   stage: package
   tags:
