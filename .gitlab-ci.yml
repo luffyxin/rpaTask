@@ -14,14 +14,6 @@ stages:
   - package
   - deploy
 
-package:
-  stage: package
-  tags:
-    - maven
-  script:
-    - echo "=============== 开始打包任务  ==============="
-    - mvn package -Dmaven.test.skip=true
-
 job_deploy:
   stage: deploy
   tags:
