@@ -1,12 +1,20 @@
-# 定义几个流程（job），这里是定义了三个自动化流程
+# 本次构建的阶段：build package
 stages:
-  - build
-  - test
-  - deploy
-
-package:
-  stage: test
+- build
+- package
+# 构建 Job
+build:
+  stage: build
   tags:
-    - maven
+  - maven
   script:
-    - mvn verify
+  - echo "=============== 开始编译构建任务 ==============="
+  - mvn compile
+# 打包
+package:
+  stage: package
+  tags:
+  - maven
+  script:
+  - echo "=============== 开始打包任务  ==============="
+  - mvn package -Dmaven.test.skip=true
