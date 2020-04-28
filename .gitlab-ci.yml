@@ -1,3 +1,9 @@
+cache:
+  key: maven-repository-cache
+  paths:
+    - .m2
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
 # 本次构建的阶段：build package
 stages:
 - build
