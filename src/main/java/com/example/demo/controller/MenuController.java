@@ -29,4 +29,9 @@ public class MenuController {
         return menuService.getAllMenu();
     }
 
+    @GetMapping("/update")
+    public String update(){
+        return "update";
+    }
+
 }
