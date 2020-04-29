@@ -1,23 +1,39 @@
-image: maven:latest
-# 脚本执行之后删除该镜像（为了不与下次镜像打包冲突）
-after_script:
-  - docker rmi $( docker images -q -f dangling=true)
 cache:
+  key: maven-repository-cache
   paths:
-    - .m2/
-
+    - /usr/local/maven/repo
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2"
-
-# 定义几个流程（job），这里是定义了三个自动化流程
+  MAVEN_OPTS: "-Dmaven.repo.local=/usr/local/maven/repo"
+# 本次构建的阶段：build package
 stages:
-  - build
-  - test
-  - deploy
-
-package:
-  stage: test
+  - compile
+  - package
+  - dock
+# 构建 Job
+build:
+  stage: compile
   tags:
     - maven
   script:
-    - mvn verify
+    - echo "=============== 开始编译构建任务 ==============="
+    - mvn compile
+# 打包
+package:
+  stage: package
+  tags:
+    - maven
+  script:
+    - echo "=============== 开始打包任务  ==============="
+    - mvn package -Dmaven.test.skip=true
+  artifacts:
+    paths:
+      - target/*.jar
+
+dock:
+  stage: dock
+  tags:
+    - maven
+  script:
+    - docker build -t xin-demo  .
+    - if [ $(docker ps -aq --filter name=demo) ]; then docker rm -rf demo;fi
+    - docker run -d -p 8086:8086 --link=mysqldx:mysql --name demo xin-demo
