@@ -4,6 +4,7 @@ import com.example.demo.dao.MenuDao;
 import com.example.demo.entity.Menu;
 import com.example.demo.service.MenuService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -13,6 +14,8 @@ public class MenuServiceImpl implements MenuService {
 
     @Resource
     private MenuDao menuDao;
+    @Resource
+    private RestTemplate template;
 
     @Override
     public List<Menu> getAllMenu() {
