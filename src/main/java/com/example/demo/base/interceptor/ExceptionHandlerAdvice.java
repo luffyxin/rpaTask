@@ -1,13 +1,12 @@
 package com.example.demo.base.interceptor;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import com.alibaba.fastjson.JSONException;
-import com.example.demo.base.Exception.AuthException;
-import com.example.demo.base.Exception.BizException;
-import com.example.demo.base.Exception.NotFoundException;
-import com.example.demo.base.Exception.VerifyException;
+import com.example.demo.base.Exception.*;
 import com.example.demo.base.response.ApiParam;
 import com.example.demo.base.response.ApiResult;
 import com.example.demo.base.response.ResResultCode;
+import com.example.demo.base.response.RpaResponse;
 import com.example.demo.util.JsonUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -65,7 +64,7 @@ public class ExceptionHandlerAdvice {
      * @return ApiParam
      */
     @ExceptionHandler(BizException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     public String handleBizException(BizException e) {
         ApiResult result = e.getResult();
         if (result == null) {
@@ -73,6 +72,16 @@ public class ExceptionHandlerAdvice {
         }
         ApiParam requestParam = new ApiParam(result);
         return JsonUtil.toJSON(requestParam);
+    }
+
+    @ExceptionHandler(RpaException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public String handleBizException(RpaException e) {
+        RpaResponse result = e.getResponse();
+        if (result == null) {
+            result = RpaResponse.getErrorResult(ResResultCode.SYSTEM_ERR, e.getMessage());
+        }
+        return JsonUtil.toJSON(result);
     }
 
     /**
@@ -122,7 +131,7 @@ public class ExceptionHandlerAdvice {
      * @return ApiParam
      */
     @ExceptionHandler(VerifyException.class)
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.OK)
     public String handleVerifyException(VerifyException e) {
         ApiResult result = e.getResult();
         if (result == null) {
@@ -131,5 +140,17 @@ public class ExceptionHandlerAdvice {
         ApiParam requestParam = new ApiParam(result);
         return JsonUtil.toJSON(requestParam);
     }
+
+    /**
+     *未登录异常
+     * @return ApiParam
+     */
+    @ExceptionHandler(NotLoginException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public String notLoginException() {
+        return JsonUtil.toJSON(new ApiParam<>(ApiResult.getErrorResult(ResResultCode.UNAUTHORIZED_CLIENT)));
+    }
+
+
 
 }

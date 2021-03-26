@@ -33,7 +33,7 @@ public class ApiResult implements Serializable {
 
     public static ApiResult getErrorResult(ResResultCode resResultCode, String... params) {
         ResourceBundle res = ResourceBundle.getBundle("biz_message");
-        String errorMsg = MessageFormat.format(res.getString(resResultCode.getCode()), params);
+        String errorMsg = MessageFormat.format(res.getString(resResultCode.getCode()), (Object) params);
         return new ApiResult(resResultCode.getCode(), errorMsg, DateUtil.getCurrentTime());
     }
 

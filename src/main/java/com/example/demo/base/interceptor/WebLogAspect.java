@@ -41,6 +41,10 @@ public class WebLogAspect {
         logger.info("========================================== Start ==========================================");
         // 打印请求 url
         logger.info("URL            : {}", request.getRequestURL().toString());
+
+        // 打印token
+        logger.info("sa-token :  {}", request.getHeader("sa-token"));
+
         // 打印 Http method
         logger.info("HTTP Method    : {}", request.getMethod());
         // 打印调用 controller 的全路径以及执行方法

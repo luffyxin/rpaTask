@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.AccountMapper">
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.Account">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="pwd" jdbcType="VARCHAR" property="pwd"/>
+        <result column="website" jdbcType="VARCHAR" property="website"/>
+        <result column="reusable" jdbcType="INTEGER" property="reusable"/>
+        <result column="robot_id" jdbcType="INTEGER" property="robotId"/>
+        <result column="take_time" jdbcType="TIMESTAMP" property="takeTime"/>
+        <result column="limit_hour" jdbcType="INTEGER" property="limitHour"/>
+        <result column="tel" jdbcType="VARCHAR" property="tel"/>
+        <result column="owner" jdbcType="VARCHAR" property="owner"/>
+        <result column="mail" jdbcType="VARCHAR" property="mail"/>
+        <result column="describe" jdbcType="VARCHAR" property="describe"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="delete_flg" jdbcType="INTEGER" property="deleteFlg"/>
+    </resultMap>
+    <select id="selectByWebSite" resultType="com.example.demo.entity.Account">
+        select id,
+               account,
+               pwd,
+               website,
+               reusable,
+               robot_id,
+               take_time,
+               limit_hour,
+               tel,
+               owner,
+               mail,
+               status,
+               `describe`,
+               create_time,
+               update_time
+        from t_account
+        where delete_flg = 0 and status != '禁用' and reusable = 0
+           or isnull(robot_id) and website = #{website}
+    </select>
+</mapper>
