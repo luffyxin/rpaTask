@@ -9,7 +9,6 @@
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="server_ip" jdbcType="VARCHAR" property="serverIp"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
-        <result column="cur_task_id" jdbcType="BIGINT" property="curTaskId"/>
         <result column="group_id" jdbcType="BIGINT" property="groupId"/>
         <result column="delete_flg" jdbcType="INTEGER" property="deleteFlg"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -31,7 +30,7 @@
         update t_robot set name = #{name},server_ip = #{serverIp} where id=#{id}
     </update>
     <select id="selectById" resultType="com.example.demo.entity.Robot">
-        select id,name, server_ip, status, cur_task_id, group_id, create_time
+        select id,name, server_ip, status, group_id, create_time
         from t_robot
         where id = #{id}
           and delete_flg = 0;
@@ -41,7 +40,6 @@
                tr.name,
                tr.server_ip,
                tr.status,
-               tr.cur_task_id,
                tr.group_id,
                tr.create_time,
                tg.name as groupName,

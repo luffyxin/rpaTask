@@ -12,4 +12,6 @@ public class TaskVo extends Task{
 
     public String processName;
 
+    public Long dataTimeLimit;
+
 }

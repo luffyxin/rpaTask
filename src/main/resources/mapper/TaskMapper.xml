@@ -60,9 +60,9 @@
           and delete_flg = 0;
     </select>
 
-    <select id="selectByStatusAndId" resultType="com.example.demo.entity.Task">
-        select id
-             , name
+    <select id="selectByStatusAndId" resultType="com.example.demo.entity.TaskVo">
+        select tt.id
+             , tt.name
              , process_id
              , status
              , group_id
@@ -73,11 +73,14 @@
              , limit_hour
              , data_sum
              , finish_num
-             , create_time
-        from t_task
-        where status = #{status}
-          and id = #{id}
-          and delete_flg = 0;
+             , tt.create_time
+             ,tp.data_time_limit as dataTimeLimit
+
+        from t_task tt left join t_process tp on tp.id = tt.process_id
+        where tt.status = #{status}
+          and tt.id = #{id}
+          and tt.delete_flg = 0
+          and tp.delete_flg = 0
     </select>
     <select id="selectTaskList" resultType="com.example.demo.entity.TaskVo">
         select tt.id,tt.name
@@ -116,7 +119,7 @@
         order by create_time desc
     </select>
     <select id="getRunTask" resultType="com.example.demo.entity.TaskVo">
-        select tt.*,tp.name as processName
+        select tt.*,tp.name as processName,tp.data_time_limit as dataTimeLimit
         from t_task tt left join t_process tp on tp.id = tt.process_id
         where tt.delete_flg = 0 and tp.delete_flg = 0
           and group_id = #{groupId}

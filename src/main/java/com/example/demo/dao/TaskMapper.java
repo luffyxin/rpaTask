@@ -13,7 +13,7 @@ public interface TaskMapper extends Mapper<Task> {
 
     public Task selectById(Long id);
 
-    public Task selectByStatusAndId(String status,Long id);
+    public TaskVo selectByStatusAndId(String status,Long id);
 
     public List<TaskVo> selectTaskList(Task task);
 

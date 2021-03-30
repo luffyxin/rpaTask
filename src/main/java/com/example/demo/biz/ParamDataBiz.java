@@ -5,7 +5,9 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.example.demo.base.Exception.BizException;
+import com.example.demo.base.Exception.RpaException;
 import com.example.demo.base.response.ApiResult;
+import com.example.demo.base.response.RpaResponse;
 import com.example.demo.dao.ParamDataMapper;
 import com.example.demo.entity.ParamData;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class ParamDataBiz {
         if (data == null) {
             paramDataMapper.insertSelective(paramData);
         } else {
-            throw new BizException(ApiResult.getErrorResult("30068"));
+            throw new RpaException(RpaResponse.getErrorResult("30068"));
         }
 
     }

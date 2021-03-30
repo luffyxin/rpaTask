@@ -12,4 +12,12 @@ public interface AccountMapper extends Mapper<Account> {
 
     List<Account> selectByWebSite(String website);
 
+    void updateStatusById(Account account);
+
+    void deleteAccount(Account account);
+
+    List<Account> selectUsedAccount();
+
+    void updateStatusBatch(List<Account> accounts);
+
 }

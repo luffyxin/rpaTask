@@ -13,6 +13,7 @@ import com.example.demo.entity.Task;
 import com.example.demo.entity.TaskVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,6 +28,9 @@ public class ProcessBiz {
 
     @Resource
     private TaskMapper taskMapper;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     private static final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
 

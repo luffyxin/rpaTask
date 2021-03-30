@@ -10,6 +10,7 @@ import com.example.demo.base.response.ApiParam;
 import com.example.demo.base.response.ApiResult;
 import com.example.demo.constant.CommonConstant;
 import com.example.demo.constant.EnumTaskStatus;
+import com.example.demo.constant.RedisPrefix;
 import com.example.demo.dao.RobotMapper;
 import com.example.demo.dao.TaskMapper;
 import com.example.demo.entity.*;
@@ -19,6 +20,8 @@ import com.github.pagehelper.PageHelper;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RobotBiz {
@@ -44,6 +48,9 @@ public class RobotBiz {
 
     @Resource
     private DataUtil dataUtil;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     private static final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
 
@@ -73,11 +80,14 @@ public class RobotBiz {
     public ApiParam<RobotVo> getRobotList(Integer page, Integer limit, Robot robot) {
         Page<Object> result = PageHelper.startPage(page, limit);
         List<RobotVo> robotVos = robotMapper.selectRobotList(robot);
-
+        // 从redis 里面获取当前任务
+        for (RobotVo bot : robotVos) {
+            RBucket<Long> taskId = redissonClient.getBucket(RedisPrefix.ROBOT_TASK + bot.getId());
+            bot.setCurTaskId(taskId.get());
+        }
         ApiExtend apiExtend = new ApiExtend();
         apiExtend.setTotal(result.getTotal());
-        ApiParam res = new ApiParam<RobotVo>(robotVos, apiExtend, ApiResult.getOkResult());
-        return res;
+        return new ApiParam<RobotVo>(robotVos, apiExtend, ApiResult.getOkResult());
     }
 
 
@@ -96,7 +106,11 @@ public class RobotBiz {
         doc.insertOne(Document.parse(jsonObject.toString()));
     }
 
-
+    /**
+     * 执行完一条数据的时候回调用这个接口，查看任务的数据是否全部执行完毕了
+     * @param task
+     * @param dataId
+     */
     public void updateDataStatus(Task task, String dataId) {
         // 更新数据状态
         Query query = new Query(Criteria.where("_id").is(dataId));
@@ -123,10 +137,12 @@ public class RobotBiz {
         String dataResult = "";
         // 根据任务名获取数据集合名
         Long taskId = robotDto.getTaskId();
-        Task task = taskMapper.selectByStatusAndId(EnumTaskStatus.RUNNING.getMsg(), taskId);
+        TaskVo task = taskMapper.selectByStatusAndId(EnumTaskStatus.RUNNING.getMsg(), taskId);
+        RBucket<Long> redisTaskId = redissonClient.getBucket(RedisPrefix.ROBOT_TASK + robot.getId());
         // 当前任务没有在执行
         if (task == null) {
-            robot.setCurTaskId(null);
+            // 删除redis 机器人与任务的对应
+            redisTaskId.delete();
             robot.setStatus(CommonConstant.ROBOT_STATUS_FREE);
             robot.setUpdateTime(new Date());
             robot.setDeleteFlg(0);
@@ -142,9 +158,10 @@ public class RobotBiz {
                 , JSONObject.class, collectionName);
         if (data != null) {
             dataResult = data.toString();
+            // 更新redis过期时间
+            redisTaskId.set(taskId,task.getDataTimeLimit(),TimeUnit.SECONDS);
         } else {
-
-            robot.setCurTaskId(null);
+            redisTaskId.delete();
             robot.setStatus(CommonConstant.ROBOT_STATUS_FREE);
             robot.setUpdateTime(new Date());
             robot.setDeleteFlg(0);
@@ -168,7 +185,11 @@ public class RobotBiz {
         if (ObjectUtil.isNotEmpty(task)) {
             // 更新机器人状态
             robot.setStatus(CommonConstant.ROBOT_STATUS_BUSY);
-            robot.setCurTaskId(task.getId());
+
+            // 机器人当前执行的任务存到redis
+            RBucket<Long> bucket = redissonClient.getBucket(RedisPrefix.ROBOT_TASK + robot.getId());
+            bucket.set(task.getId(),task.getDataTimeLimit(), TimeUnit.SECONDS);
+            // 更新机器人状态
             robot.setUpdateTime(new Date());
             robotDto.setTaskId(task.getId());
             robotDto.setProcessName(task.getProcessName());

@@ -6,6 +6,7 @@
           WARNING - @mbg.generated
         -->
         <id column="id" jdbcType="BIGINT" property="id"/>
+        <id column="data_time_limit" jdbcType="BIGINT" property="dataTimeLimit"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="desc" jdbcType="VARCHAR" property="desc"/>
         <result column="delete_flg" jdbcType="INTEGER" property="deleteFlg"/>
@@ -24,6 +25,6 @@
         where delete_flg = 0
     </select>
     <select id="getProcessList" resultType="com.example.demo.entity.Process">
-        select id,name,`desc`,create_time from t_process where delete_flg = 0 order by create_time desc
+        select id,name,data_time_limit,`desc`,create_time from t_process where delete_flg = 0 order by create_time desc
     </select>
 </mapper>

@@ -8,15 +8,9 @@ import com.example.demo.constant.CommonConstant;
 import com.example.demo.dao.GroupMapper;
 import com.example.demo.dao.RobotMapper;
 import com.example.demo.dao.TaskMapper;
-import com.example.demo.entity.Account;
 import com.example.demo.entity.GroupVo;
 import com.example.demo.entity.Robot;
-import com.example.demo.entity.Task;
 import com.example.demo.util.DataUtil;
-import com.example.demo.util.JsonUtil;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.mongodb.client.MongoCollection;
 import io.minio.*;
 import io.minio.errors.*;
@@ -25,29 +19,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
-import org.redisson.Redisson;
-import org.redisson.api.RList;
-import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @SpringBootTest
 class DemoApplicationTests {
+
+    public static void main(String[] args) {
+        Long a = 1234567L;
+        Long b = 1234567L;
+        System.out.println(Objects.equals(a, b));
+    }
 
     @Resource
     private DataUtil dataUtil;
@@ -68,19 +61,11 @@ class DemoApplicationTests {
     @Resource
     private RedissonClient redissonClient;
 
-    @Test
-    void contextLoads() {
-        RQueue<Object> anyQueue = redissonClient.getQueue("anyQueue");
-        Object peek = anyQueue.peek();
-        Account account = JsonUtil.parseObject((String) peek, Account.class);
-        System.out.println(account.getAccount());
-    }
+
 
 
     @Test
-    public void writeToMongo(List<Document> mapList, String collectionName) {
-        MongoCollection<Document> doc = dataUtil.getCollectionByName(collectionName);
-        doc.insertMany(mapList);
+    public void writeToMongo()  {
     }
 
 
