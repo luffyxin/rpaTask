@@ -35,7 +35,7 @@
                              targetProject="src/main/java"
                              type="XMLMAPPER"/>
 
-        <table tableName="t_account" domainObjectName="Account">
+        <table tableName="t_account_record" domainObjectName="AccountRecord">
             <generatedKey column="id" sqlStatement="JDBC"/>
         </table>
 

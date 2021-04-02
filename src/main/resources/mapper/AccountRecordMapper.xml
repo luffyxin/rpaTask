@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.AccountRecordMapper">
+    <resultMap id="BaseResultMap" type="com.example.demo.entity.AccountRecord">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="robot_id" jdbcType="BIGINT" property="robotId"/>
+        <result column="account_id" jdbcType="BIGINT" property="accountId"/>
+        <result column="task_id" jdbcType="BIGINT" property="taskId"/>
+        <result column="use_time" jdbcType="TIMESTAMP" property="useTime"/>
+        <result column="back_time" jdbcType="TIMESTAMP" property="backTime"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+    </resultMap>
+    <update id="updateStatusById">
+        update t_account_record
+        set status    = #{status},
+            back_time = #{backTime}
+        where id = #{id}
+    </update>
+    <select id="selectByStatus">
+        select id, robot_id, account_id, task_id, status
+        from t_account_record
+        where status = #{status}
+    </select>
+    <select id="selectRobotUsed" resultType="com.example.demo.entity.AccountRecord">
+        select id, robot_id, account_id, task_id, status
+        from t_account_record
+        where status = #{status} and robot_id =#{robotId}
+    </select>
+</mapper>

@@ -22,13 +22,7 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="delete_flg" jdbcType="INTEGER" property="deleteFlg"/>
     </resultMap>
-    <update id="updateStatusById">
-        update t_account
-        set robot_id    = #{robotId},
-            take_time   = #{takeTime},
-            update_time = #{updateTime}
-        where id = #{id}
-    </update>
+
     <update id="deleteAccount">
         update t_account
         set delete_flg = 1
@@ -36,9 +30,7 @@
     </update>
     <update id="updateStatusBatch">
         update t_account
-        set robot_id    = null,
-            take_time   = null,
-            update_time = now()
+        set update_time = now()
         where id in
         <foreach collection="accounts" index="index" item="item" separator="," open="(" close=")">
             #{item.id}
@@ -50,9 +42,6 @@
                pwd,
                website,
                reusable,
-               robot_id,
-               take_time,
-               limit_hour,
                tel,
                owner,
                mail,
@@ -61,18 +50,16 @@
                create_time,
                update_time
         from t_account
-        where delete_flg = 0 and status != '禁用' and reusable = 0
-           or isnull(robot_id) and website = #{website}
+        where delete_flg = 0
+          and status != '禁用'
+          and website = #{website}
     </select>
-    <select id="selectUsedAccount" resultType="com.example.demo.entity.Account">
+    <select id="selectById" resultType="com.example.demo.entity.Account">
         select id,
                account,
                pwd,
                website,
                reusable,
-               robot_id,
-               take_time,
-               limit_hour,
                tel,
                owner,
                mail,
@@ -81,7 +68,9 @@
                create_time,
                update_time
         from t_account
-        where not isnull(robot_id)
-          and delete_flg = 0
+        where delete_flg = 0
+          and status != '禁用'
+          and id = #{id}
     </select>
+
 </mapper>

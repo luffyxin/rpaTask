@@ -30,12 +30,6 @@ public class Account {
 
 
     /**
-     * 领用的机器人id
-     */
-    @Column(name = "`robot_id`")
-    private Integer robotId;
-
-    /**
      * 领用时间
      */
     @Column(name = "`take_time`")
@@ -178,23 +172,6 @@ public class Account {
         this.status = status;
     }
 
-    /**
-     * 获取领用的机器人id
-     *
-     * @return robot_id - 领用的机器人id
-     */
-    public Integer getRobotId() {
-        return robotId;
-    }
-
-    /**
-     * 设置领用的机器人id
-     *
-     * @param robotId 领用的机器人id
-     */
-    public void setRobotId(Integer robotId) {
-        this.robotId = robotId;
-    }
 
     /**
      * 获取领用时间

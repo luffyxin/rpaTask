@@ -7,8 +7,14 @@ import org.springframework.data.redis.listener.KeyExpirationEventMessageListener
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 @Service
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
+
+
+    @Resource
+    private KeyExpireObserved keyExpireObserved;
 
 
     private static Logger log = LoggerFactory.getLogger(RedisKeyExpirationListener.class);
@@ -21,9 +27,7 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     public void onMessage(Message message, byte[] pattern) {
         //获取过期的key
         String expireKey = message.toString();
-        System.out.println("终于失效了");
-        log.debug("key is:"+ expireKey);
-        System.out.println(expireKey);
+        keyExpireObserved.notifyObserver(expireKey);
     }
 
 }
