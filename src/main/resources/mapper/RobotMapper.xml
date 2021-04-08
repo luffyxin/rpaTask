@@ -42,11 +42,9 @@
                tr.status,
                tr.group_id,
                tr.create_time,
-               tg.name as groupName,
-               tt.name as taskName
+               tg.name as groupName
         from t_robot tr
                  left join t_group tg on tr.group_id = tg.id and tg.delete_flg = 0
-                 left join t_task tt on tr.cur_task_id = tt.id and tt.delete_flg = 0
         where tr.delete_flg = 0
 
         <if test="name != null and name !=''">
@@ -54,9 +52,6 @@
         </if>
         <if test="id != null">
             and tr.id = #{id}
-        </if>
-        <if test="curTaskId != null">
-            and tr.cur_task_id = #{curTaskId}
         </if>
         <if test="groupId != null">
             and tr.group_id = #{groupId}

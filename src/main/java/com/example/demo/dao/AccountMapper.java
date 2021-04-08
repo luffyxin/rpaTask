@@ -12,6 +12,8 @@ public interface AccountMapper extends Mapper<Account> {
 
     List<Account> selectByWebSite(String website);
 
+    List<Account> selectAll();
+
     void deleteAccount(Account account);
 
     void updateStatusBatch(List<Account> accounts);

@@ -27,6 +27,8 @@ public class CommonConstant {
 
     public final static String INVALID = "无效";
 
+    public final static String NORMAL = "正常";
+
 
     /**
      * 前后缀常亮

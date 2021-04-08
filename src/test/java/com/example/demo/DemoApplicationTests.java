@@ -5,6 +5,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
 import com.example.demo.constant.CommonConstant;
+import com.example.demo.constant.RedisPrefix;
 import com.example.demo.dao.GroupMapper;
 import com.example.demo.dao.RobotMapper;
 import com.example.demo.dao.TaskMapper;
@@ -19,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RBucket;
+import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -116,8 +119,15 @@ class DemoApplicationTests {
 
     @Test
     public void testRobotGroup(){
-        List<GroupVo> groupList = groupMapper.getGroupList(1,1);
-        System.out.println(groupList.toString());
+        RBucket<Long> bucket = redissonClient.getBucket("acc-01");
+        bucket.set(123l);
+         bucket = redissonClient.getBucket("acc-02");
+        bucket.set(123l);
+         bucket = redissonClient.getBucket("acc-03");
+        bucket.set(123l);
+
+        RKeys keys = redissonClient.getKeys();
+        keys.deleteByPattern("acc-*");
     }
 
 

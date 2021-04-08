@@ -19,6 +19,9 @@
             back_time = #{backTime}
         where id = #{id}
     </update>
+    <update id="updateByStatus">
+        update  t_account_record set status=#{newStatus} where status =#{oldStatus}
+    </update>
     <select id="selectByStatus">
         select id, robot_id, account_id, task_id, status
         from t_account_record

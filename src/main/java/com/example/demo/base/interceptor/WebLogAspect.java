@@ -43,7 +43,7 @@ public class WebLogAspect {
         logger.info("URL            : {}", request.getRequestURL().toString());
 
         // 打印token
-        logger.info("sa-token :  {}", request.getHeader("sa-token"));
+        logger.info("satoken :  {}", request.getHeader("satoken"));
 
         // 打印 Http method
         logger.info("HTTP Method    : {}", request.getMethod());

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Data
 public class MinioConfig {
 
-    private String endpoint = "http://127.0.0.1:9000";
+    private String endpoint = "http://47.111.119.248:9000";
 
     private String user = "admin";
 

@@ -11,9 +11,11 @@ import java.util.List;
 public interface AccountRecordMapper extends Mapper<AccountRecord> {
 
 
-    public void updateStatusById(AccountRecord accountRecord);
+    public int updateStatusById(AccountRecord accountRecord);
 
     public void selectByStatus(String status);
+
+    public int updateByStatus(@Param("newStatus") String newStatus,@Param("oldStatus")String oldStatus);
 
     public List<AccountRecord> selectRobotUsed(@Param("robotId") Long robotId, @Param("status") String status);
 }

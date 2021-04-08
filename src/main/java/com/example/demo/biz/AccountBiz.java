@@ -3,26 +3,29 @@ package com.example.demo.biz;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.example.demo.base.Exception.BizException;
 import com.example.demo.base.Exception.RpaException;
+import com.example.demo.base.response.ApiResult;
 import com.example.demo.base.response.RpaResponse;
 import com.example.demo.constant.CommonConstant;
 import com.example.demo.constant.RedisPrefix;
 import com.example.demo.dao.AccountMapper;
 import com.example.demo.dao.AccountRecordMapper;
-import com.example.demo.dao.RobotMapper;
 import com.example.demo.entity.*;
 import com.example.demo.util.JsonUtil;
 import com.example.demo.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RKeys;
 import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.security.auth.login.Configuration;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,13 +35,13 @@ public class AccountBiz {
     private AccountMapper accountMapper;
 
     @Resource
-    private RobotMapper robotMapper;
-
-    @Resource
     private RedissonClient redisson;
 
     @Resource
     private AccountRecordMapper accountRecordMapper;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     private static final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
 
@@ -52,10 +55,30 @@ public class AccountBiz {
         account.setId(id);
         account.setCreateTime(new Date());
         account.setUpdateTime(new Date());
+        account.setStatus(CommonConstant.NORMAL);
         accountMapper.insertSelective(account);
         // 添加到redis
         RQueue<Object> accountQ = redisson.getQueue(RedisPrefix.ACCOUNT + account.getWebsite());
         accountQ.add(JSONObject.toJSONString(account));
+    }
+
+    public void syncAccount() {
+        // 查询出数据库所有的账号
+        List<Account> accountList = accountMapper.selectAll();
+        // 删除redis 里面所有的账号
+        RKeys keys = redisson.getKeys();
+        keys.deleteByPattern(RedisPrefix.ACCOUNT);
+        Map<String, List<Account>> listMap = accountList.stream().collect(Collectors.groupingBy(Account::getWebsite));
+
+        // 账号添加到redis
+        listMap.forEach((k, list) -> {
+            RQueue<Object> queue = redisson.getQueue(RedisPrefix.ACCOUNT + k);
+            for (Account account : list) {
+                queue.add(JsonUtil.toJSONL2String(account));
+            }
+        });
+        // 删除正在使用记录
+        accountRecordMapper.updateByStatus(CommonConstant.INVALID,CommonConstant.USED);
     }
 
     /**
@@ -65,45 +88,60 @@ public class AccountBiz {
      * @return
      */
     public TakeAccountDto getAccountByWebSite(TakeAccountDto account) {
-
+        // 判断要领用账号的机器人是否在执行要用账号的任务
+        RBucket<Long> bucket = redissonClient.getBucket(RedisPrefix.ROBOT_TASK + account.getRobotId());
+        if (!bucket.isExists()) {
+            // 该机器人没有在执行任务
+            throw new RpaException(RpaResponse.getErrorResult("30071"));
+        }
+        Long taskId = bucket.get();
+        // 判断账号是否一致
+        if (!account.getTaskId().equals(taskId)) {
+            // 在执行的任务和要使用账号的任务不一致
+            throw new RpaException(RpaResponse.getErrorResult("30072"));
+        }
         // 根据机器人id 判断 是否已经领用过账号
         List<AccountRecord> recordList = accountRecordMapper.selectRobotUsed(account.getRobotId(), CommonConstant.USED);
-
         // 没有领用记录
         if (recordList.size() == 0) {
             // 根据网站名 在redis 队列里面获取一个账号
             RQueue<String> accountQ = redisson.getQueue(RedisPrefix.ACCOUNT + account.getWebsite());
             String accountJson = accountQ.poll();
             // 不为空的话更新状态
-            if (StringUtils.isNotEmpty(accountJson)) {
-                Account acc = JSONObject.parseObject(accountJson, Account.class);
-                // 新增账号记录
-                AccountRecord accountRecord = new AccountRecord();
-                Long recordId = snowflake.nextId();
-                accountRecord.setId(recordId);
-                accountRecord.setRobotId(account.getRobotId());
-                accountRecord.setTaskId(account.getTaskId());
-                accountRecord.setAccountId(acc.getId());
-                accountRecord.setUseTime(new Date());
-                accountRecord.setStatus(CommonConstant.USED);
-                accountRecordMapper.insertSelective(accountRecord);
-                // 添加返回给机器人的信息
-                account.setAccount(acc.getAccount());
-                account.setPwd(acc.getPwd());
-                account.setRecordId(recordId);
-                return account;
-            } else {
+            if (StringUtils.isEmpty(accountJson)) {
                 throw new RpaException(RpaResponse.getErrorResult("30069"));
             }
+            Account acc = JSONObject.parseObject(accountJson, Account.class);
+            // 新增账号记录
+            AccountRecord accountRecord = new AccountRecord();
+            Long recordId = snowflake.nextId();
+            accountRecord.setId(recordId);
+            accountRecord.setRobotId(account.getRobotId());
+            accountRecord.setTaskId(account.getTaskId());
+            accountRecord.setAccountId(acc.getId());
+            accountRecord.setUseTime(new Date());
+            accountRecord.setStatus(CommonConstant.USED);
+            accountRecordMapper.insertSelective(accountRecord);
+            // 添加返回给机器人的信息
+            account.setAccount(acc.getAccount());
+            account.setPwd(acc.getPwd());
+            account.setRecordId(recordId);
+            account.setAccountId(acc.getId());
+            return account;
         } else {
             AccountRecord record = recordList.get(0);
             // 有领用记录,根据记录的账号返回给机器人
             Account odlAcc = accountMapper.selectById(record.getAccountId());
+            if (odlAcc == null) {
+                throw new RpaException(RpaResponse.getErrorResult("40402"));
+            }
             account.setAccount(odlAcc.getAccount());
             account.setPwd(odlAcc.getPwd());
             account.setRecordId(record.getId());
+            account.setAccountId(odlAcc.getId());
             return account;
         }
+
     }
 
     /**
@@ -131,8 +169,10 @@ public class AccountBiz {
             accountRecord.setStatus(CommonConstant.UN_USED);
             accountRecord.setBackTime(new Date());
             accountRecord.setId(takeDto.getRecordId());
-            accountRecordMapper.updateStatusById(accountRecord);
-            accountQ.add(JSONObject.toJSONString(acc));
+            int i = accountRecordMapper.updateStatusById(accountRecord);
+            if (i > 0) {
+                accountQ.add(JSONObject.toJSONString(acc));
+            }
         }
     }
 

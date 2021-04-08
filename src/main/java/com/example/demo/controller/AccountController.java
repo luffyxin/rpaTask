@@ -55,6 +55,16 @@ public class AccountController {
         return JsonUtil.toJSONL2String(RpaResponse.getSuccess());
     }
 
+    /**
+     * 同步redis 和数据库的账号
+     * @return ok
+     */
+    @PostMapping("/sync")
+    public String syncAccount(){
+        accountBiz.syncAccount();
+        return JsonUtil.toJSONL2String(RpaResponse.getSuccess());
+    }
+
 
 
 }

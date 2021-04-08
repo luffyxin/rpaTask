@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import cn.dev33.satoken.interceptor.SaRouteInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -34,6 +35,10 @@ public class MySaTokenConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		// 注册注解拦截器 
 		registry.addInterceptor(new SaAnnotationInterceptor()).addPathPatterns("/**");
+
+//		// 注册登录拦截器，并排除登录接口地址
+//		registry.addInterceptor(new SaRouteInterceptor()).addPathPatterns("/**")
+//				.excludePathPatterns("/user/login", "/user/robot/login");
 	}
 	
 }

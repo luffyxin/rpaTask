@@ -20,7 +20,6 @@ public class AccountExpireObserver implements Observer {
         if(arg.toString().startsWith(RedisPrefix.ROBOT_TASK)){
             accountBiz.timeOutBackAccount(robotId);
         }
-
     }
 
 

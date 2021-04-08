@@ -29,17 +29,7 @@ public class Account {
     private Integer reusable;
 
 
-    /**
-     * 领用时间
-     */
-    @Column(name = "`take_time`")
-    private Date takeTime;
 
-    /**
-     * 超时时间
-     */
-    @Column(name = "`limit_hour`")
-    private Integer limitHour;
 
     @Column(name = "`status`")
     private String status;
@@ -172,42 +162,6 @@ public class Account {
         this.status = status;
     }
 
-
-    /**
-     * 获取领用时间
-     *
-     * @return take_time - 领用时间
-     */
-    public Date getTakeTime() {
-        return takeTime;
-    }
-
-    /**
-     * 设置领用时间
-     *
-     * @param takeTime 领用时间
-     */
-    public void setTakeTime(Date takeTime) {
-        this.takeTime = takeTime;
-    }
-
-    /**
-     * 获取超时时间
-     *
-     * @return limit_hour - 超时时间
-     */
-    public Integer getLimitHour() {
-        return limitHour;
-    }
-
-    /**
-     * 设置超时时间
-     *
-     * @param limitHour 超时时间
-     */
-    public void setLimitHour(Integer limitHour) {
-        this.limitHour = limitHour;
-    }
 
     /**
      * 获取手机号

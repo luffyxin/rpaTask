@@ -10,9 +10,6 @@
         <result column="pwd" jdbcType="VARCHAR" property="pwd"/>
         <result column="website" jdbcType="VARCHAR" property="website"/>
         <result column="reusable" jdbcType="INTEGER" property="reusable"/>
-        <result column="robot_id" jdbcType="INTEGER" property="robotId"/>
-        <result column="take_time" jdbcType="TIMESTAMP" property="takeTime"/>
-        <result column="limit_hour" jdbcType="INTEGER" property="limitHour"/>
         <result column="tel" jdbcType="VARCHAR" property="tel"/>
         <result column="owner" jdbcType="VARCHAR" property="owner"/>
         <result column="mail" jdbcType="VARCHAR" property="mail"/>
@@ -69,8 +66,25 @@
                update_time
         from t_account
         where delete_flg = 0
-          and status != '禁用'
+          and (status != '禁用' or ISNULL(status))
           and id = #{id}
+    </select>
+    <select id="selectAll" resultType="com.example.demo.entity.Account">
+        select id,
+               account,
+               pwd,
+               website,
+               reusable,
+               tel,
+               owner,
+               mail,
+               status,
+               `describe`,
+               create_time,
+               update_time
+        from t_account
+        where delete_flg = 0
+          and (status != '禁用' or ISNULL(status))
     </select>
 
 </mapper>
